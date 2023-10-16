@@ -39,7 +39,14 @@ public final class bmp_io {
 			bmp = BmpReader.read_bmp(in);
 			
 			// Implementierung
+			
 
+			for(int i = 0; i < bmp.image.getHeight() ; i++){
+				for(int j = 0; j < bmp.image.getWidth(); j++){
+					pc = bmp.image.getRgbPixel(i, j);
+					bmp.image.setRgbPixel(i, j, pc);
+				}
+			}
 			
 			
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
