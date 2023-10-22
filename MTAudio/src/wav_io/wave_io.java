@@ -1,6 +1,9 @@
 package wav_io;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 public class wave_io {
 	
@@ -69,6 +72,25 @@ public class wave_io {
 		
 		
 		// Implementierung
+		// Aufgabe 2. a)
+
+		try {
+			FileOutputStream fos = new FileOutputStream(outFilename + "_out");
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "US-ascii");
+			BufferedWriter bw = new BufferedWriter(osw);
+			
+			for (int i = 0; i < samples; i++) {
+				bw.write(String.valueOf(readWavFile.sound[i]));
+				bw.newLine();
+			}
+			
+			bw.close();
+			osw.close();
+			fos.close();
+			
+		} catch (IOException e1){
+			e1.printStackTrace();
+		}
 		
 		
 		// Speicherung

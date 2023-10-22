@@ -41,12 +41,17 @@ public final class bmp_io {
 			// Implementierung
 			
 
-			for(int i = 0; i < bmp.image.getHeight() ; i++){
-				for(int j = 0; j < bmp.image.getWidth(); j++){
-					pc = bmp.image.getRgbPixel(i, j);
-					bmp.image.setRgbPixel(i, j, pc);
+			for(int i = 0; i < bmp.image.getWidth() ; i++){
+				for(int j = 0; j < bmp.image.getHeight() ; j++){
+					PixelColor pOut = bmp.image.getRgbPixel(i, j);
+					System.out.printf("R: %-3d", pOut.r);
+					System.out.printf("G: %-3d", pOut.g);
+					System.out.printf("B: %-3d", pOut.b);
+					System.out.println();
 				}
 			}
+
+			
 			
 			
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
