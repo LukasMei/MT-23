@@ -55,6 +55,13 @@ public class wave_io {
 
 			// Implementierung
 			// Zugriff auf die einzelne Samples mit readWavFile.sound[i]
+
+			// Aufgabe Downsampling
+            for (int i = 0; i < samples /2; i++) {
+                readWavFile.sound[i] = readWavFile.sound[2*i];
+            }
+            sampleRate /= 2;
+            numFrames /= 2;
 			
 		} catch (IOException | WavFileException e1) {
 			// TODO Auto-generated catch block
@@ -73,9 +80,9 @@ public class wave_io {
 		
 		// Implementierung
 		// Aufgabe 2. a)
-
+/* 
 		try {
-			FileOutputStream fos = new FileOutputStream(outFilename + "_out");
+			FileOutputStream fos = new FileOutputStream(outFilename + "_out.txt");
 			OutputStreamWriter osw = new OutputStreamWriter(fos, "US-ascii");
 			BufferedWriter bw = new BufferedWriter(osw);
 			
@@ -87,10 +94,15 @@ public class wave_io {
 			bw.close();
 			osw.close();
 			fos.close();
+
+			
+           
 			
 		} catch (IOException e1){
 			e1.printStackTrace();
-		}
+		} */
+
+		 
 		
 		
 		// Speicherung
