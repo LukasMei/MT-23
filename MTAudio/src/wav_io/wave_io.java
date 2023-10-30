@@ -49,19 +49,29 @@ public class wave_io {
 			// Abtastrate 
 			sampleRate = readWavFile.getSampleRate();
 			
-			for (int i = 0; i < samples; i++) {
+			/* for (int i = 0; i < samples; i++) {
 				System.out.println(readWavFile.sound[i]);
+			} */
+
+			int reducedBits = 8;
+
+			for(int i = 0; i < samples; i++){
+				readWavFile.sound[i] /= Math.pow(2, reducedBits);
+
+				readWavFile.sound[i] *= Math.pow(2, reducedBits);
+
 			}
 
 			// Implementierung
 			// Zugriff auf die einzelne Samples mit readWavFile.sound[i]
 
 			// Aufgabe Downsampling
-            for (int i = 0; i < samples /2; i++) {
+
+           /*  for (int i = 0; i < samples /2; i++) {
                 readWavFile.sound[i] = readWavFile.sound[2*i];
             }
             sampleRate /= 2;
-            numFrames /= 2;
+            numFrames /= 2; */
 			
 		} catch (IOException | WavFileException e1) {
 			// TODO Auto-generated catch block
