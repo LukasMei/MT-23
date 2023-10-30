@@ -53,7 +53,7 @@ public class wave_io {
 				System.out.println(readWavFile.sound[i]);
 			} */
 
-			int reducedBits = 8;
+			int reducedBits = 12;
 
 			for(int i = 0; i < samples; i++){
 				readWavFile.sound[i] /= Math.pow(2, reducedBits);
