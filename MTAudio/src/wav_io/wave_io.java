@@ -53,13 +53,33 @@ public class wave_io {
 				System.out.println(readWavFile.sound[i]);
 			} */
 
-			int reducedBits = 12;
+			/* int reducedBits = 12;
 
 			for(int i = 0; i < samples; i++){
 				readWavFile.sound[i] /= Math.pow(2, reducedBits);
 
 				readWavFile.sound[i] *= Math.pow(2, reducedBits);
 
+			} */
+
+			// Bit reduktion difference Aufgabe 2.6
+        
+			int reduceBits = 8;
+			int [] originalValue = new int [samples];
+			
+			for (int i = 0; i < samples; i++) {
+				originalValue[i] = readWavFile.sound[i];
+				// reduce bit amount
+				readWavFile.sound[i] /= Math.pow(2, reduceBits);
+				// countermeasure for the lower of the amplitude
+				readWavFile.sound[i] *= Math.pow(2, reduceBits);
+				
+				// reduce the quantized value by its original value
+				readWavFile.sound[i] -= originalValue[i];
+				
+				// countermeasure for the lower of the amplitude
+				readWavFile.sound[i] *= Math.pow(2, validBits - reduceBits - 1);
+				
 			}
 
 			// Implementierung
