@@ -43,8 +43,9 @@ public final class bmp_io {
 
 			//printRGB(bmp);
 
-			bufferWith(outFilename, bmp);
-			bufferHeight(outFilename, bmp);
+			//bufferWith(outFilename, bmp);
+			//bufferHeight(outFilename, bmp);
+			reduceBits(bmp,4);
 
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
 			// Setzen eines Pixels mit bmp.image.setRgbPixel(x, y, pc);
@@ -136,4 +137,25 @@ public final class bmp_io {
 		}
 
 	}
+
+	public static void reduceBits(BmpImage bmp,int rBits){
+
+		double doubleExp = Math.pow(2, rBits);
+		int intExp = (int) doubleExp;
+
+		for(int i = 0; i < bmp.image.getWidth(); i++){
+			for(int j = 0; j < bmp.image.getHeight(); j++){
+
+				PixelColor pixel = bmp.image.getRgbPixel(i, j);
+
+				pixel.r = (int) (pixel.r / intExp * doubleExp);
+				pixel.g = (int) (pixel.g / intExp * doubleExp);
+				pixel.b = (int) (pixel.b / intExp * doubleExp);
+			
+				
+			}
+		}
+	}
+
+	
 }
