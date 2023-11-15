@@ -45,7 +45,8 @@ public final class bmp_io {
 
 			//bufferWith(outFilename, bmp);
 			//bufferHeight(outFilename, bmp);
-			reduceBits(bmp,4);
+			reduceBits(bmp,6);
+
 
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
 			// Setzen eines Pixels mit bmp.image.setRgbPixel(x, y, pc);
@@ -151,7 +152,8 @@ public final class bmp_io {
 				pixel.r = (int) (pixel.r / intExp * doubleExp);
 				pixel.g = (int) (pixel.g / intExp * doubleExp);
 				pixel.b = (int) (pixel.b / intExp * doubleExp);
-			
+				
+				bmp.image.setRgbPixel(i, j, pixel);		
 				
 			}
 		}
