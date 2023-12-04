@@ -45,7 +45,8 @@ public final class bmp_io {
 
 			//bufferWith(outFilename, bmp);
 			//bufferHeight(outFilename, bmp);
-			reduceBits(bmp,6);
+			//reduceBits(bmp,6);
+			doSomething(bmp);
 
 
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
@@ -157,6 +158,45 @@ public final class bmp_io {
 				
 			}
 		}
+	}
+
+	public static void doSomething (BmpImage bmp){
+
+		double[][] matrix = {{0.299,0.587,0.114 },
+							 {-0.169,-0.331,0.5},
+							 {0.5,-0.419,-0.081}};
+
+		BmpImage yImage = new BmpImage();		
+		RgbImage rgb = new RgbImage(bmp.image.getWidth(),
+									bmp.image.getHeight(),
+									bmp.image.getBitsPerPixel());
+
+
+
+
+		for(int width = 0; width < bmp.image.getWidth(); width++){
+			for(int height = 0; height < bmp.image.getHeight(); height++ ){
+
+				PixelColor pixel = bmp.image.getRgbPixel(width, height);
+
+				int yValue = (int)(((matrix[0][0] * pixel.r) + 0) + 
+							((matrix[0][1] * pixel.g) + 128) + 
+							((matrix[0][2] * pixel.b) + 128));
+				int Cb = (int)(((matrix[1][0] * pixel.r) + 0) + 
+							((matrix[1][1] * pixel.g) + 128) + 
+							((matrix[1][2] * pixel.b) + 128));
+				int Cr = (int)(((matrix[2][0] * pixel.r) + 0) + 
+							((matrix[2][1] * pixel.g) + 128) + 
+							((matrix[2][2] * pixel.b) + 128));
+
+				PixelColor yPixel = new PixelColor(yValue,yValue,yValue);
+				yImage.image.setRgbPixel(width,height,yPixel);
+												
+				
+			}
+		}
+
+		
 	}
 
 	
