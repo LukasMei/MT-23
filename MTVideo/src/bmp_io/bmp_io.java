@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 //import wav_io.WavFileException;
 
@@ -41,8 +42,7 @@ public final class bmp_io {
 
 			// Implementierung
 
-			convertYCbCrtoRGB(bmp);
-			
+			bufferHistogramm(outFilename, bmp);
 
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
 			// Setzen eines Pixels mit bmp.image.setRgbPixel(x, y, pc);
@@ -205,8 +205,8 @@ public final class bmp_io {
 						((matrixRGB[0][1] * pixel.g) + 0) +
 						((matrixRGB[0][2] * pixel.b) + 0));
 
-				int cb = (int) ((matrixRGB[1][0] * pixel.r)+
-						(matrixRGB[1][1] * pixel.g)+
+				int cb = (int) ((matrixRGB[1][0] * pixel.r) +
+						(matrixRGB[1][1] * pixel.g) +
 						(matrixRGB[1][2] * pixel.b)) + 128;
 
 				int cr = (int) ((matrixRGB[2][0] * pixel.r) +
@@ -233,15 +233,28 @@ public final class bmp_io {
 
 	}
 
-	public static void bufferHistogramm(String outFilename, BmpImage image){
-			try {
-			FileOutputStream fos = new FileOutputStream(outFilename + "_histogram.txt");
-			OutputStreamWriter osw = new OutputStreamWriter(fos, "US-ascii");
-			BufferedWriter bw = new BufferedWriter(osw);
+	public static void bufferHistogramm(String outFilename, BmpImage image) {
+		String histogrammFilename = outFilename + "_histogram.txt";
+
+		try {
+			FileOutputStream fos = new FileOutputStream(histogrammFilename);
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+			BufferedWriter bw = new BufferedWriter(osw);		
+
+			for (int width = 0; width < image.image.getWidth(); width++) {
+				for (int height = 0; height < image.image.getHeight(); height++) {
+
+					PixelColor pixel = image.image.getRgbPixel(width, height);
+
+					double yColor = (0.299 * pixel.r) + (0.587 * pixel.g) + (0.114 * pixel.b);									
+					
+					bw.write(String.valueOf((int) yColor));
+					bw.newLine();
+				}
+			}
 
 			
-			
-
+				
 			bw.close();
 			osw.close();
 			fos.close();
