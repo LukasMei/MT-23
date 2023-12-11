@@ -42,7 +42,7 @@ public final class bmp_io {
 
 			// Implementierung
 
-			bufferHistogramm(outFilename, bmp);
+			changeContrast(bmp);
 
 			// Zugriff auf Pixel mit bmp.image.getRgbPixel(x, y);
 			// Setzen eines Pixels mit bmp.image.setRgbPixel(x, y, pc);
@@ -166,9 +166,9 @@ public final class bmp_io {
 
 				PixelColor pixel = bmp.image.getRgbPixel(width, height);
 
-				int yValue = (int) (((matrix[0][0] * pixel.r) + 0) +
-						((matrix[0][1] * pixel.g) + 0) +
-						((matrix[0][2] * pixel.b) + 0));
+				int yValue = (int) ((matrix[0][0] * pixel.r) +
+						(matrix[0][1] * pixel.g) +
+						(matrix[0][2] * pixel.b));
 
 				int cb_r = (int) ((matrix[1][0] * pixel.r) + 128);
 				int cb_g = (int) ((matrix[1][1] * pixel.g) + 128);
@@ -178,7 +178,7 @@ public final class bmp_io {
 				int cr_g = (int) ((matrix[2][1] * pixel.g) + 128);
 				int cr_b = (int) ((matrix[2][2] * pixel.b) + 128);
 
-				PixelColor yPixel = new PixelColor(cb_r, cb_g, cb_b);
+				PixelColor yPixel = new PixelColor(cr_r, cr_g, cr_b);
 				bmp.image.setRgbPixel(width, height, yPixel);
 
 			}
@@ -233,28 +233,26 @@ public final class bmp_io {
 
 	}
 
-	public static void bufferHistogramm(String outFilename, BmpImage image) {
+	public static void bufferHistogramm(String outFilename, BmpImage bmp) {
 		String histogrammFilename = outFilename + "_histogram.txt";
 
 		try {
 			FileOutputStream fos = new FileOutputStream(histogrammFilename);
 			OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-			BufferedWriter bw = new BufferedWriter(osw);		
+			BufferedWriter bw = new BufferedWriter(osw);
 
-			for (int width = 0; width < image.image.getWidth(); width++) {
-				for (int height = 0; height < image.image.getHeight(); height++) {
+			for (int width = 0; width < bmp.image.getWidth(); width++) {
+				for (int height = 0; height < bmp.image.getHeight(); height++) {
 
-					PixelColor pixel = image.image.getRgbPixel(width, height);
+					PixelColor pixel = bmp.image.getRgbPixel(width, height);
 
-					double yColor = (0.299 * pixel.r) + (0.587 * pixel.g) + (0.114 * pixel.b);									
-					
+					double yColor = (0.299 * pixel.r) + (0.587 * pixel.g) + (0.114 * pixel.b);
+
 					bw.write(String.valueOf((int) yColor));
 					bw.newLine();
 				}
 			}
 
-			
-				
 			bw.close();
 			osw.close();
 			fos.close();
@@ -262,6 +260,83 @@ public final class bmp_io {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+	}
+
+	public static void averageBrightness(BmpImage bmp) {
+
+		int sum = 0;
+
+		for (int width = 0; width < bmp.image.getWidth(); width++) {
+			for (int height = 0; height < bmp.image.getHeight(); height++) {
+
+				PixelColor pixel = bmp.image.getRgbPixel(width, height);
+
+				double yColor = (0.299 * pixel.r) + (0.587 * pixel.g) + (0.114 * pixel.b);
+				sum += (int) yColor;
+			}
+		}
+
+		int pixelSum = bmp.image.getWidth() * bmp.image.getHeight();
+
+		int average = sum / pixelSum;
+
+		System.out.println("Die mittlere Helligekit ist: " + average);
+	}
+
+	public static void changeBrightness(BmpImage bmp) {
+		// Array mit den Helligekeitsfaktoren aus der Aufgabenstellung
+		double[] intensityFactors = { -20, -50, -100, 20, 50, 100 };
+
+		for (int width = 0; width < bmp.image.getWidth(); width++) {
+			for (int height = 0; height < bmp.image.getHeight(); height++) {
+
+				PixelColor pixel = bmp.image.getRgbPixel(width, height);
+
+				// erneute Berechnung des Y-Bildes
+				double yColor = (0.299 * pixel.r) + (0.587 * pixel.g) + (0.114 * pixel.b);
+
+				// Berechnung der neuen Helligkeit
+				int intensity = (int) (yColor + intensityFactors[5]);
+
+				// Prüfe ob die Werte im 0:255 Werte Bereich liegen, falls nicht wird
+				// korriegiert
+				if (intensity > 255) {
+					intensity = 255;
+				}
+				if (intensity < 0) {
+					intensity = 0;
+				}
+
+				PixelColor modifiedPixel = new PixelColor(intensity, intensity, intensity);
+
+				bmp.image.setRgbPixel(width, height, modifiedPixel);
+
+			}
+		}
+
+	}
+
+	public static void changeContrast(BmpImage bmp) {
+		// Array mit den Werten aus der Aufgabenstellung k = {...}
+		double[] factors = { 0.2, 0.5, 0.7, 1.5, 3.0, 8.0, -1.0 };
+
+		for (int width = 0; width < bmp.image.getWidth(); width++) {
+			for (int height = 0; height < bmp.image.getHeight(); height++) {
+
+				PixelColor pixel = bmp.image.getRgbPixel(width, height);
+
+				// erneute Berechnung des Y-Bildes
+				double yValue = (0.299 * pixel.r) + (0.587 * pixel.g) + (0.114 * pixel.b);
+
+				double contrast = Math.pow(yValue, 2);
+				int yValue_changed = (int) (Math.sqrt(contrast) * factors[6]);
+
+				PixelColor modifiedPixel = new PixelColor(yValue_changed, yValue_changed, yValue_changed);
+				bmp.image.setRgbPixel(width, height, modifiedPixel);
+
+			}
+		}
+
 	}
 
 }
