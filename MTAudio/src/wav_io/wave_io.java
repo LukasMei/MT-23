@@ -19,6 +19,7 @@ public class wave_io {
 		String outFilename = null;
 
 		WavFile readWavFile = null;
+		short[] sound_out = null;
 
 		if (args.length < 1) {
 			try {
@@ -51,9 +52,11 @@ public class wave_io {
 			// Abtastrate
 			sampleRate = readWavFile.getSampleRate();
 
+			sound_out = new short[samples];
+
 			// Implementierung
 			// Zugriff auf die einzelne Samples mit readWavFile.sound[i]
-			echo(samples, readWavFile);
+			//filterB(samples, readWavFile);
 
 		} catch (IOException | WavFileException e1) {
 			// TODO Auto-generated catch block
@@ -66,11 +69,43 @@ public class wave_io {
 		// ***********************************************************
 		// Implementierung bei Ein-und Ausgabeparameter (Speichern der Ausgabedatei)
 
+		 // Verzögerung t
+		 int t_50 = 50;
+		 int t_100 = 100;
+		 int t_200 = 200;
+	 
+		 /*
+		  * Verstärkungsfaktor a
+		  * wenn a = 0.6 hat das Echo 60% der Intensität des Originals
+		  */
+		 double a = 0.6;
+	 
+		 // Verzögerung in Abhängigkeit von der Anzahl der Kanäle
+		 int echo = (int) (t_100 * sampleRate / 1000 * numChannels);
+	 
+		 for (int i = 0; i < samples; i++) {
+			 if (i < echo) {
+				 sound_out[i] = readWavFile.sound[i];
+			 } else {
+				 if (numChannels == 1) {
+					 // Mono: Das Echo wird nur auf das aktuelle Sample des Mono-Audios angewendet
+					 sound_out[i] = (short) (readWavFile.sound[i] + a * readWavFile.sound[i - echo]);
+				 } else if (numChannels == 2) {
+					 // Stereo: Das Echo wird separat auf linker und rechter Kanal angewendet
+					 sound_out[i] = (short) (readWavFile.sound[i] + a * readWavFile.sound[i - echo]);
+					 sound_out[i + 1] = (short) (readWavFile.sound[i + 1] + a * readWavFile.sound[i + 1 - echo]);
+					 i++; // Überspringe das nächste Sample, da es bereits bearbeitet wurde
+				 }
+			 }
+			 readWavFile.sound[i] = sound_out[i];
+		 }
+		
+
 		outFilename = args[1];
 
 		// Speicherung
 		try {
-			WavFile.write_wav(outFilename, numChannels, numFrames, validBits, sampleRate, readWavFile.sound);
+			WavFile.write_wav(outFilename, numChannels, numFrames, validBits, sampleRate, sound_out);
 		} catch (IOException | WavFileException e) {
 			e.printStackTrace();
 		}
@@ -177,15 +212,13 @@ public class wave_io {
 
 	}
 
-	public static void echo(int samples, WavFile readWavFile) {
-
-		// Array zur Speicherung des Echos
-		double sound_out[] = new double[samples];
+	public static void echo(int samples, WavFile readWavFile, int numChannels, long sampleRate) {		
+		short[] sound_out = new short[samples];
 
 		// Verzögerung t
-		double t_50 = 0.05;
-		double t_100 = 0.10;
-		double t_200 = 0.200;
+		int t_50 = 50;
+		int t_100 = 100;
+		int t_200 = 200;
 
 		/*
 		 * Verstärkungsfaktor a
@@ -194,40 +227,50 @@ public class wave_io {
 		double a = 0.6;
 		
 		// Verzögerung
-		double N = t_50 * samples;
+		int echo = (int) (t_50 * (sampleRate / 1000) * numChannels);	
+		
 
 		for (int i = 0; i < samples; i++) {
+			if (i < echo) {
+				sound_out[i] = readWavFile.sound[i];
+			} else {
+				sound_out[i] = (short) (readWavFile.sound[i] + a * readWavFile.sound[i - echo]);
+			}
+			readWavFile.sound[i] = sound_out[i];
+		}
 
-			// Prüfe ob der aktuelle Sample größer gleich der Verzögerungszeit N ist
-			// Mono für die Sprache
-			if (i >= N) {
-				sound_out[i] = ((0.5 * readWavFile.sound[i]) +
-						(0.5 * a * readWavFile.sound[(int) (i - N)]));
-				readWavFile.sound[i] = (short) sound_out[i];
+		
+	}
+
+	public static void filterA(int samples, WavFile readWavFile){
+		short[] sound_out = new short[samples];
+		
+		for(int i = 0 ; i < samples ; i++){
+			if(i > 0){
+			sound_out[i] = (short) ((0.5 * readWavFile.sound[i]) + 
+									(0.45 * readWavFile.sound[i - 1]));
 			}
 			else{
-				sound_out[i] = readWavFile.sound[i];
+				sound_out[i] = (short) (0.5 * readWavFile.sound[i]);
 			}
-			
-			// Prüfe für zwei aufeinanderfolgende samples i && 1+1
-			// Stereo für die Musik
-			if (i >= N && i + 1 < samples) {
-
-				sound_out[i] = (short) ((0.5 * readWavFile.sound[i]) + 
-										(0.5 * a * readWavFile.sound[(int) (i - N)]));
-		  
-				sound_out[i + 1] = (short) ((0.5 * readWavFile.sound[i + 1]) + 
-											(0.5 * a * readWavFile.sound[(int) ((i + 1) - N)]));
-		  
-				readWavFile.sound[i] = (short) sound_out[i];
-		  
-				readWavFile.sound[i] += sound_out[i + 1];
-		  
-			 } else if (i < N && i + 1 < samples) {
-		  
-				sound_out[i] = readWavFile.sound[i];
-		  
-			 }
 		}
+
+
+	}
+	public static void filterB(int samples, WavFile readWavFile){
+		short[] sound_out = new short[samples];
+		
+		for(int i = 0 ; i < samples ; i++){
+			if(i > 0){
+			sound_out[i] = (short) ((0.5 * readWavFile.sound[i]) - 
+									(0.45 * readWavFile.sound[i - 1]));
+			}
+			else{
+				sound_out[i] = (short) (0.5 * readWavFile.sound[i]);
+			}
+		}
+		
+		
+		
 	}
 }
